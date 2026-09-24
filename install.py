@@ -25,7 +25,7 @@ import shutil
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).parent.resolve()
+HERE = Path(getattr(sys, "_MEIPASS", None) or Path(__file__).parent.resolve())
 
 
 def _real_home():
