@@ -10,4 +10,6 @@ __pycache__/
 
 # OS
 .DS_Store
-Thumbs.db
+Thumbs.dbdist/
+build/
+*.spec
