@@ -334,6 +334,9 @@ def main():
     ap.add_argument("--root", help=L("WorkBuddy 根目录（如 E:\\WorkBuddy）",
                                      "WorkBuddy root directory (e.g. E:\\WorkBuddy)"))
     ap.add_argument("--no-mcp", action="store_true", help=L("跳过 MCP 注册", "skip MCP"))
+    ap.add_argument("--inject-asar", action="store_true",
+                    help=L("注入 app.asar 悬浮条（风险高，默认不做）",
+                           "inject app.asar for floating bar (risky, off by default)"))
     ap.add_argument("--dev", action="store_true",
                     help=L("开发模式：不复制运行时，注入直指本仓库",
                            "dev mode: no runtime copy; injection points at this repo"))
@@ -367,6 +370,19 @@ def main():
         print(L("卸载完成。", "Uninstall complete."))
         return 0 if ok else 1
 
+    if not args.inject_asar:
+        # 默认不注入 asar（悬浮条方案风险过高，已弃用）；只做 MCP + CLI
+        if not args.dev:
+            copy_runtime(args.dry_run)
+        prepare_config(args.dry_run, args.dev)
+        if not args.no_mcp:
+            register_mcp(args.dry_run, args.dev)
+            install_command(args.dry_run)
+        print("\n" + L("完成。已注册 MCP + CLI（不碰 app.asar）。对话内可用 token_usage 工具查询，命令行用 python busage.py。",
+                         "Done. MCP + CLI registered (app.asar untouched). Use token_usage tool in chat, or python busage.py on CLI."))
+        return 0
+
+    # 以下为 --inject-asar 显式注入悬浮条（风险高）
     if args.root:
         asar = expand(args.root) / "resources" / "app.asar"
     elif args.asar:
@@ -381,6 +397,8 @@ def main():
                  f"app.asar not found. Point --root at the WorkBuddy install dir, e.g.: python install.py {ex}"))
         return 1
     print(L(f"[目标] {asar}", f"[target] {asar}"))
+    print(L("[警告] asar 注入有风险，可能导致 WorkBuddy 无法启动。如出问题用 --remove 卸载或重装 WorkBuddy。",
+             "[warning] asar injection is risky and may break WorkBuddy. Use --remove or reinstall WorkBuddy if it breaks."))
     if sys.platform != "win32" and os.geteuid() != 0 and not os.access(ASAR, os.W_OK):
         print(L(f"[权限] {asar.parent} 不可写，需要 sudo：sudo {Path(sys.executable).name} install.py",
                  f"[permission] not writable; use sudo"))
