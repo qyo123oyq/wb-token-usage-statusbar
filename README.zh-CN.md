@@ -8,6 +8,10 @@ WorkBuddy 桌面客户端（Electron）的悬浮状态栏，实时显示当前�
 灵感来自 [zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar)，
 按 WorkBuddy 的数据模型重写。
 
+> **致谢**：本项目是 [@xhwxt](https://github.com/xhwxt) 的
+> [zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar)
+> 在 WorkBuddy 上的移植版（原作者 MIT 协议）。详见[致谢](#致谢)。
+
 ## 功能
 
 悬浮条停在 WorkBuddy 窗口底部，实时显示用量。所有项目均可在 ⚙ 面板开关。
@@ -147,6 +151,14 @@ python install.py --remove
 │  └ serve: 本地 HTTP JSON 服务（端口 0 = OS 分配）             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## 致谢
+
+本项目直接移植自 **[@xhwxt](https://github.com/xhwxt) 的
+[zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar)**。
+整体架构——Python 标准库数据层、Electron `main/index.js` 注入、渲染进程 overlay、
+纯 Python asar patcher、一键安装器、MCP + CLI + 斜杠命令——以及 asar 重打包代码的
+大部分均改编自原项目。感谢 @xhwxt 提供的设计与零依赖实现，使移植到 WorkBuddy 变得直接可行。
 
 ## 注意事项
 - 注入 `app.asar` 是非官方途径；WorkBuddy 升级会覆盖——升级后重跑 install。
