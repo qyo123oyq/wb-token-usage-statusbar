@@ -9,6 +9,10 @@ real-time token & credit usage of the current conversation. It only reads the lo
 Inspired by [zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar),
 retargeted to WorkBuddy's data model.
 
+> **Acknowledgments**: this is a port of [@xhwxt](https://github.com/xhwxt)'s
+> [zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar)
+> to WorkBuddy. See [Acknowledgments](#acknowledgments). The original is MIT-licensed.
+
 ## Features
 
 The status bar floats at the bottom of the WorkBuddy window and shows real-time usage.
@@ -96,6 +100,16 @@ WorkBuddy's local DB has coarser granularity than ZCode's (`model_usage` / `turn
 
 What's preserved 1:1: floating bar UX, context-capacity bar, today/session totals,
 bilingual settings panel, CLI, MCP, zero-dependency Python, asar-injection install model.
+
+## Acknowledgments
+
+This project is a direct retarget of **[@xhwxt](https://github.com/xhwxt)'s
+[zcode-token-usage-statusbar](https://github.com/xhwxt/zcode-token-usage-statusbar)**
+to the WorkBuddy desktop client. The architecture — Python stdlib data layer,
+Electron `main/index.js` asar injection, renderer overlay, pure-Python asar patcher,
+one-shot installer, MCP + CLI + slash command — and large parts of the asar repack
+code are adapted from the original. Thank you @xhwxt for the design and the clean
+zero-dependency implementation, which made porting to WorkBuddy straightforward.
 
 ## Notes
 - Patching `app.asar` is an unofficial injection; WorkBuddy updates overwrite it — re-run install after upgrading.
