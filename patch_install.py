@@ -37,9 +37,12 @@ HERE = Path(__file__).parent.resolve()
 RUNTIME = HERE
 LOADER = RUNTIME / "inject-main.cjs"
 ENTRY = "main/index.js"   # WorkBuddy asar 主入口（package.json main 字段）
-# CJS 注入行：绝对路径 require（捕获异常，注入失败不影响主进程）
+# CJS 注入行：只在「Electron 主进程」加载本 loader；CLI/utility/renderer 子进程直接跳过。
+# WorkBuddy 的 CLI 子进程也加载同一个 app.asar 的 main/index.js，若在它们里跑 inject-main
+# 会因 require("electron") 失败 / 无 BrowserWindow 而 exit 1，被 daemon 判为「cli 意外崩溃」。
+# 判据：process.type === 'browser'（Electron 主进程）；缺该字段（纯 node CLI）则跳过。
 _INJECT_LINE_TMPL = (
-    '\n;try{{require({pp})}}catch(e){{console.error("[wb-usage] load failed",e);}}'
+    '\n;try{{if(process.type==="browser"){{require({pp})}}}}catch(e){{console.error("[wb-usage] load failed",e);}}'
 )
 INJECT_LINE = None  # 由 set_runtime 生成
 
@@ -51,9 +54,17 @@ def _gen_line():
     return _INJECT_LINE_TMPL.format(pp=pp)
 
 
-# 匹配任意本工具注入行（不限目录）——迁移/重装时剥离旧行用
+# 匹配任意本工具注入行（不限目录、兼容 v1.0.0 无守卫旧形式与 v1.0.1+ 带进程类型守卫新形式）
+# ——迁移/重装/卸载时剥离任何历史注入行用。两种形式：
+#   旧: ;try{require("...")}catch(e){console.error("[wb-usage] load failed",e);}
+#   新: ;try{if(process.type==="browser"){require("...")}}catch(e){console.error("[wb-usage] load failed",e);}
+# 末尾 } 数量不同：旧 1 个（catch 闭合），新 2 个（守卫 + catch）→ 用 \}\}? 容纳
 WBUSAGE_LINE_RE = re.compile(
-    rb'\n;try\{require\([^)]*\)\}catch\(e\)\{console\.error\("\[wb-usage\] load failed",e\);\}\}'
+    rb'\n;try\{'
+    rb'(?:if\(process\.type==="browser"\)\{)?'          # 可选守卫（v1.0.1+）
+    rb'require\([^)]*\)'                                 # require(...)
+    rb'(?:\})?'                                           # 可选守卫闭合 }
+    rb'\}catch\(e\)\{console\.error\("\[wb-usage\] load failed",e\);\}'  # catch 块
 )
 
 WORKBUDDY_EXE = None
