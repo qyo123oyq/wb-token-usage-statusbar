@@ -1,0 +1,13 @@
+# 运行时产物 / 诊断
+.serve.port
+.entry-check.js
+*.bak
+config.local.json
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

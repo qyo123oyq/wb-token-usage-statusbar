@@ -1,0 +1,15 @@
+{
+  "python_path": "python",
+  "poll_ms": 2000,
+  "hot_reload": true,
+  "context_window": 0,
+  "lang": "zh",
+  "show": {
+    "context": true,
+    "turn": true,
+    "session": true,
+    "today": true,
+    "model": true,
+    "status": true
+  }
+}
